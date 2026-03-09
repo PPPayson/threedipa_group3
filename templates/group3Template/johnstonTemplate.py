@@ -61,11 +61,21 @@ TEXTURE_DICT = {0:"noise", 1:"lines", 2:"circle"}
 # ============================================================
 
 def load_stimulus(texture, df, data_path):
-    print(os.getcwd())
-    print(os.path.exists(data_path))
     img_path = Path(os.path.join(data_path, f"{TEXTURE_DICT[texture]}_{df}.png"))
-    img_arr = np.array(Image.open(img_path))
+    img = Image.open(img_path)
+    img_arr = np.array(img)
+    alpha = img_arr[:, :, 3]
+    print(np.max(alpha), np.min(alpha))
+    ys, xs = np.where(alpha > 0)
+    left = xs.min()
+    right = xs.max()+1
+    top = ys.min()
+    bottom=ys.max()
+    img.crop((left, top, right, bottom))
+    img_arr = np.array(img)
+
     return img_arr
+
     
     
 def exit_experiment(phaseTracker):
@@ -276,109 +286,109 @@ def main():
     # ----------------------------------------------------------
     # PHASE 1 — STAIRCASE
     # ----------------------------------------------------------
-    renderer.draw_text(
-        "PHASE 1 — PRACTICE\n\n"
-        "Press  3  if the cylinder looks STRETCHED (deep).\n"
-        "Press  6  if the cylinder looks SQUASHED (flat).\n\n"
-        "This short phase calibrates the stimulus range for you.\n"
-        "Press Enter to begin.",
-        pos=(0, 0)
-    )
-    renderer.render_screen()
-    kb.waitKeys(keyList=['return'], waitRelease=True)
+    # renderer.draw_text(
+        # "PHASE 1 — PRACTICE\n\n"
+        # "Press  3  if the cylinder looks STRETCHED (deep).\n"
+        # "Press  6  if the cylinder looks SQUASHED (flat).\n\n"
+        # "This short phase calibrates the stimulus range for you.\n"
+        # "Press Enter to begin.",
+        # pos=(0, 0)
+    # )
+    # renderer.render_screen()
+    # kb.waitKeys(keyList=['return'], waitRelease=True)
 
-    staircases = [Staircase(a) for a in HALF_HEIGHTS]
-    exp_sc     = ExperimentHandler(
-        name='staircase', version='1.0', extraInfo=info,
-        runtimeInfo=None, dataFileName=data_sc
-    )
+    # staircases = [Staircase(a) for a in HALF_HEIGHTS]
+    # exp_sc     = ExperimentHandler(
+        # name='staircase', version='1.0', extraInfo=info,
+        # runtimeInfo=None, dataFileName=data_sc
+    # )
 
-    trial_num = 0
-    escaped   = False
+    # trial_num = 0
+    # escaped   = False
 
-    while not all(s.is_finished() for s in staircases):
-        for sc in staircases:
-            if sc.is_finished():
-                continue
+    # while not all(s.is_finished() for s in staircases):
+        # for sc in staircases:
+            # if sc.is_finished():
+                # continue
 
-            a  = sc.half_height
-            df = sc.current_df()
-            texture = sc.texture
-            seed = abs(hash((a, df, trial_num, 'sc'))) % (2**32)
+            # a  = sc.half_height
+            # df = sc.current_df()
+            # texture = sc.texture
+            # seed = abs(hash((a, df, trial_num, 'sc'))) % (2**32)
 
-            t0 = time.time()
-            img_arr = load_stimulus(texture, df, tmp_dir)
-            l_arr = img_arr
-            r_arr = img_arr
-            # l_arr, r_arr = generate_stimulus(a=a, df=df, iod=iod_m, seed=seed)
-            t_render = time.time() - t0
+            # t0 = time.time()
+            # img_arr = load_stimulus(texture, df, tmp_dir)
+            # l_arr = img_arr
+            # r_arr = img_arr
+            # # l_arr, r_arr = generate_stimulus(a=a, df=df, iod=iod_m, seed=seed)
+            # t_render = time.time() - t0
 
-            stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
+            # stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
 
-            try:
-                rname, rt = run_single_trial(
-                    renderer, kb, phaseTracker, trial_time, parameters,
-                    stimulus, stimulusVisualAngle
-                )
-            except SystemExit:
-                escaped = True
-                break
+            # try:
+                # rname, rt = run_single_trial(
+                    # renderer, kb, phaseTracker, trial_time, parameters,
+                    # stimulus, stimulusVisualAngle
+                # )
+            # except SystemExit:
+                # escaped = True
+                # break
 
-            sc.update(rname)
-            perceived = 'stretched' if rname == '3' else 'squashed'
+            # sc.update(rname)
+            # perceived = 'stretched' if rname == '3' else 'squashed'
 
-            exp_sc.addData('phase', 'staircase')
-            exp_sc.addData('texture', texture)
-            exp_sc.addData('halfHeight', a)
-            exp_sc.addData('depth_factor', df)
-            exp_sc.addData('response_key', rname)
-            exp_sc.addData('perceived', perceived)
-            exp_sc.addData('rt_s', rt)
-            exp_sc.addData('reversal_count', sc.reversal_count)
-            exp_sc.addData('finished', sc.is_finished())
-            exp_sc.addData('render_time_ms', round(t_render * 1000))
-            exp_sc.nextEntry()
+            # exp_sc.addData('phase', 'staircase')
+            # exp_sc.addData('texture', texture)
+            # exp_sc.addData('halfHeight', a)
+            # exp_sc.addData('depth_factor', df)
+            # exp_sc.addData('response_key', rname)
+            # exp_sc.addData('perceived', perceived)
+            # exp_sc.addData('rt_s', rt)
+            # exp_sc.addData('reversal_count', sc.reversal_count)
+            # exp_sc.addData('finished', sc.is_finished())
+            # exp_sc.addData('render_time_ms', round(t_render * 1000))
+            # exp_sc.nextEntry()
 
-            print(f"[SC] Trial {trial_num:>3} | a={a*1000:.0f}mm  df={df:.3f}  "
-                  f"resp={perceived}  rev={sc.reversal_count}")
+            # print(f"[SC] Trial {trial_num:>3} | a={a*1000:.0f}mm  df={df:.3f}  "
+                  # f"resp={perceived}  rev={sc.reversal_count}")
 
-            trial_num += 1
+            # trial_num += 1
 
-        if escaped or phaseTracker.get_experiment_phase() == utils.ExperimentPhase.END:
-            escaped = True
-            break
+        # if escaped or phaseTracker.get_experiment_phase() == utils.ExperimentPhase.END:
+            # escaped = True
+            # break
 
-    exp_sc.saveAsWideText(data_sc + '.csv')
+    # exp_sc.saveAsWideText(data_sc + '.csv')
 
-    if escaped:
-        renderer.close_windows()
-        core.quit()
+    # if escaped:
+        # renderer.close_windows()
+        # core.quit()
 
-    # ----------------------------------------------------------
-    # Staircase summary — determine MOC depth factors per half-height
-    # ----------------------------------------------------------
-    print("\n=== STAIRCASE PSEs ===")
-    moc_depth_factors = {}
-    for sc in staircases:
-        pse = sc.pse()
-        dfs = df_range_from_pse(pse, MOC_N_STEPS, MOC_SPACING, SC_MIN_DF, SC_MAX_DF)
-        moc_depth_factors[sc.half_height] = dfs
-        print(f"  a={sc.half_height*1000:.0f}mm  PSE={pse:.3f}  "
-              f"MOC range: {[f'{d:.2f}' for d in dfs]}")
+    # # ----------------------------------------------------------
+    # # Staircase summary — determine MOC depth factors per half-height
+    # # ----------------------------------------------------------
+    # print("\n=== STAIRCASE PSEs ===")
+    # moc_depth_factors = {}
+    # for sc in staircases:
+        # pse = sc.pse()
+        # dfs = df_range_from_pse(pse, MOC_N_STEPS, MOC_SPACING, SC_MIN_DF, SC_MAX_DF)
+        # moc_depth_factors[sc.half_height] = dfs
+        # print(f"  a={sc.half_height*1000:.0f}mm  PSE={pse:.3f}  "
+              # f"MOC range: {[f'{d:.2f}' for d in dfs]}")
 
-    # ----------------------------------------------------------
-    # Break between phases
-    # ----------------------------------------------------------
-    renderer.draw_text(
-        "Phase 1 complete.\n\n"
-        "PHASE 2 — MAIN EXPERIMENT\n\n"
-        "Same task: press  3  (stretched) or  6  (squashed).\n"
-        f"There will be 200 trials.\n\n"
-        "Press Enter to begin.",
-        pos=(0, 0)
-    )
-    renderer.render_screen()
-    kb.waitKeys(keyList=['return'], waitRelease=True)
+    # # ----------------------------------------------------------
+    # # Break between phases
+    # # ----------------------------------------------------------
+    # renderer.draw_text(
+        # "Phase 1 complete.\n\n"
+        # "PHASE 2 — MAIN EXPERIMENT\n\n"
+        # "Same task: press  3  (stretched) or  6  (squashed).\n"
+        # f"There will be 200 trials.\n\n"
+        # "Press Enter to begin.",
+        # pos=(0, 0)
+    # )
+    # renderer.render_screen()
+    # kb.waitKeys(keyList=['return'], waitRelease=True)
 
     # ----------------------------------------------------------
     # PHASE 2 — METHOD OF CONSTANTS
@@ -464,7 +474,7 @@ def main():
         kb.waitKeys(keyList=['return'], waitRelease=True)
 
     renderer.close_windows()
-    shutil.rmtree(tmp_dir, ignore_errors=True)
+    # shutil.rmtree(tmp_dir, ignore_errors=True)
     core.quit()
 
 

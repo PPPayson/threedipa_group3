@@ -2,7 +2,7 @@
 # Experiment parameters
 # Use capitalization to avoid the key lowercase letters f and s
 Debug: 0
-VisualAngle: 4.016 # In degrees. See Johnston1991 for the 3 visual angles
+VisualAngle: 25.0576 # In degrees. See Johnston1991 for the 3 visual angles
 Repetitions: 10
 FixationDistance: 45 # In centimeters
 StimulusDuration: 10
