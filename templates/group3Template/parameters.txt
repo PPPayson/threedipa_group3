@@ -1,0 +1,20 @@
+# Example Parameter file
+# Experiment parameters
+# Use capitalization to avoid the key lowercase letters f and s
+Debug: 0
+VisualAngle: 4.016 # In degrees. See Johnston1991 for the 3 visual angles
+Repetitions: 10
+FixationDistance: 45 # In centimeters
+StimulusDuration: 10
+FixationDuration: .5
+
+# Experiment Factors
+# fDepth: 10, 30, 50
+# fhalfHeight: 2.5, 3.75, 5.0, 6.25, 7.5
+fTexture: 1, 2, 3
+fDepth: 2, 3, 4, 5, 6
+
+# Experiment adaptive staircase parameters
+
+
+
