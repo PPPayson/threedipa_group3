@@ -1,7 +1,10 @@
+import cmd
 import os
 import time
 import random
 import numpy as np
+import serial
+import time
 from psychopy import core, gui
 from psychopy.data import ExperimentHandler
 from psychopy.hardware import keyboard
@@ -40,7 +43,7 @@ from threedipa.stimuli.stimulus2D import Stimulus2DImage
 HALF_HEIGHTS = [0.04]   # meters — Johnston used 2.5–7.5 cm; we use 2 sizes
 TEXTURES = [0, 1, 2]
 DEPTH_FACTORS = [0.5, 0.75, 1, 1.25, 1.5]
-
+VIBRATION_LEVELS = [0, 2, 3]
 # --- Staircase parameters ---
 SC_START_DF    = 1.25   # start well above expected PSE
 SC_STEP        = 0.5   # step size
@@ -275,7 +278,20 @@ def main():
     )
     kb         = keyboard.Keyboard(clock=core.Clock())
     trial_time = core.Clock()
+    # change this to your Arduino port
+    port = '/dev/cu.usbmodem101'   # Mac example
+    # port = 'COM3'                # Windows example
+    # port = '/dev/ttyACM0'       # Linux example
 
+    arduino = serial.Serial(port, 9600)
+
+    time.sleep(2)  # wait for Arduino reset
+
+    print("Connected to Arduino")
+
+       
+
+   
     # ----------------------------------------------------------
     # 4. Calibration
     # ----------------------------------------------------------
@@ -402,7 +418,8 @@ def main():
         for df in DEPTH_FACTORS:
             for texture in TEXTURES:
                 for rep in range(MOC_N_REPS):
-                    trial_list.append({'half_height': a, 'depth_factor': df, 'texture': texture, 'repetition': rep})
+                    for vibration_level in VIBRATION_LEVELS:
+                        trial_list.append({'half_height': a, 'depth_factor': df, 'texture': texture, 'repetition': rep, 'vibration_level': vibration_level})
     random.shuffle(trial_list)
     n_trials = len(trial_list)
 
@@ -416,7 +433,7 @@ def main():
         df  = trial['depth_factor']
         texture = trial['texture']
         rep = trial['repetition']
-
+        vibration_level = trial['vibration_level']
         seed = abs(hash((a, df, rep, info['Participant ID'], 'moc'))) % (2**32)
 
         t0 = time.time()
@@ -425,6 +442,7 @@ def main():
         r_arr = img_arr
         # l_arr, r_arr = generate_stimulus(a=a, df=df, iod=iod_m, seed=seed)
         t_render = time.time() - t0
+        arduino.write(vibration_level)
 
         stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
 
@@ -475,6 +493,7 @@ def main():
 
     renderer.close_windows()
     # shutil.rmtree(tmp_dir, ignore_errors=True)
+    arduino.close()
     core.quit()
 
 
