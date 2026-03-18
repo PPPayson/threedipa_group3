@@ -5,7 +5,7 @@ Debug: 0
 VisualAngle: 25.0576 # In degrees. See Johnston1991 for the 3 visual angles
 Repetitions: 10
 FixationDistance: 45 # In centimeters
-StimulusDuration: 10
+StimulusDuration: 1
 FixationDuration: .5
 
 # Experiment Factors

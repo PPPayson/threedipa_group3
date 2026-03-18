@@ -61,7 +61,7 @@ class HaplscopeRender2D(HaplscopeRender):
             self.fixation_distance,
             self.pixel_by_cm_density
         )
-
+    
     def draw_physical_calibration(self):
         # Draw the physical calibration on the windows in mm.
         calibration_text = renderer_utils.calc_physical_calibration(
@@ -89,6 +89,15 @@ class HaplscopeRender2D(HaplscopeRender):
             color='white'
         ).draw()
 
+    def draw_text_single_window(self, text: str, pos: tuple[float, float] = (0, 0), window: int = 0):
+        visual.TextStim(
+            self.windows[window],
+            text=text,
+            units=self.windows[window].units,
+            pos=pos,
+            color='white'
+        ).draw()
+        
     def draw_text(self, text: str, pos: tuple[float, float] = (0, 0)):
         visual.TextStim(
             self.windows[0],
