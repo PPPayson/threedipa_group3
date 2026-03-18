@@ -1,2 +1,3 @@
 ﻿thisRow.t,notes,phase,half_height,depth_factor,repetition,response_key,perceived,rt_s,render_time_ms,Participant ID,IOD (mm),Session,
-,,visual-haptic,0.04,0.75,3,3,stretched,3.946331100014504,246,test,56,1,
+,,visual-haptic,0.04,1.25,2,3,stretched,4.401987900026143,304,test,56,1,
+,,visual-haptic,0.04,1,2,3,stretched,2.272758199949749,359,test,56,1,

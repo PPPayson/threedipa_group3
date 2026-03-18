@@ -43,7 +43,7 @@ from threedipa.stimuli.stimulus2D import Stimulus2DImage
 HALF_HEIGHTS = [0.04]   # meters — Johnston used 2.5–7.5 cm; we use 2 sizes
 TEXTURES = [0, 1, 2]
 DEPTH_FACTORS = [0.5, 0.75, 1, 1.25, 1.5]
-SHAPE_DICT = {0.5:'-2', 0.75:'-1', 1:'0', 1.25:'1', 1.5:'2'}
+SHAPE_DICT = {0.5:'-2', 0.75:'-1', 1:'+0', 1.25:'+1', 1.5:'+2'}
 VIBRATION_LEVELS = [0, 2, 3]
 # --- Staircase parameters ---
 SC_START_DF    = 1.25   # start well above expected PSE
@@ -70,6 +70,7 @@ def load_empty_stimulus():
     return img_arr
     
 def load_stimulus(texture, df, data_path):
+    df = SHAPE_DICT[df]
     img_path = Path(os.path.join(data_path, f"{TEXTURE_DICT[texture]}_{df}.png"))
     img = Image.open(img_path)
     img_arr = np.array(img)
@@ -80,8 +81,9 @@ def load_stimulus(texture, df, data_path):
     top = ys.min()
     bottom=ys.max()
     img.crop((left, top, right, bottom))
+   
     img_arr = np.array(img)
-
+    print(img_arr.shape)
     return img_arr
 
     
@@ -280,11 +282,11 @@ def main():
     kb         = keyboard.Keyboard(clock=core.Clock())
     trial_time = core.Clock()
     # change this to your Arduino port
-    port = '/dev/cu.usbmodem101'   # Mac example
-    # port = 'COM3'                # Windows example
+    # port = '/dev/cu.usbmodem101'   # Mac example
+    port = 'COM5'                # Windows example
     # port = '/dev/ttyACM0'       # Linux example
 
-    arduino = serial.Serial(port, 9600)
+    arduino = serial.Serial(port, 9600, timeout=1)
 
     time.sleep(2)  # wait for Arduino reset
 
@@ -300,144 +302,145 @@ def main():
     renderer.render_screen()
     kb.waitKeys(keyList=['return'], waitRelease=True)
 
-    # ----------------------------------------------------------
-    # PHASE 1 — VISUAL_ONLY
-    # ----------------------------------------------------------
-    trial_list = []
-    for d in DEPTH_FACTORS:
-        for rep in range(MOC_N_REPS[0]):
-            trial_list.append({'half_height': HALF_HEIGHTS[0], 'depth_factor': d, 'texture': 2, 'repetition':rep})
-    random.shuffle(trial_list)
-    n_trials = len(trial_list)
+    # # ----------------------------------------------------------
+    # # PHASE 1 — VISUAL_ONLY
+    # # ----------------------------------------------------------
+    # trial_list = []
+    # for d in DEPTH_FACTORS:
+        # for rep in range(MOC_N_REPS[0]):
+            # trial_list.append({'half_height': HALF_HEIGHTS[0], 'depth_factor': d, 'texture': 2, 'repetition':rep})
+    # random.shuffle(trial_list)
+    # n_trials = len(trial_list)
     
-    exp_v = ExperimentHandler(
-        name='visual-only', version='1.0', extraInfo=info,
-        runtimeInfo=None, dataFileName=data_v
-    )
+    # exp_v = ExperimentHandler(
+        # name='visual-only', version='1.0', extraInfo=info,
+        # runtimeInfo=None, dataFileName=data_v
+    # )
     
-    for t_idx, trial in enumerate(trial_list):
-        a = trial['half_height']
-        df = trial['depth_factor']
-        texture = trial['texture']
-        rep = trial['repetition']
-        seed = abs(hash((a, df, rep, info['Participant ID'], 'moc'))) % (2**32)
-        t0 = time.time()
-        img_arr = load_stimulus(texture, df, tmp_dir)
-        l_arr = img_arr
-        r_arr = img_arr
-        t_render = time.time() - t0
-
-        stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
-
-        try:
-            rname, rt = run_single_trial(
-                renderer, kb, phaseTracker, trial_time, parameters,
-                stimulus, stimulusVisualAngle
-            )
-        except SystemExit:
-            escaped = True
-            break
-
-        perceived = 'stretched' if rname == '3' else 'squashed'
-
-        exp_v.addData('phase', 'visual-only')
-        exp_v.addData('half_height', a)
-        exp_v.addData('depth_factor', df)
-        exp_v.addData('repetition', rep)
-        exp_v.addData('response_key', rname)
-        exp_v.addData('perceived', perceived)
-        exp_v.addData('rt_s', rt)
-        exp_v.addData('render_time_ms', round(t_render * 1000))
-        exp_v.nextEntry()
-
-        print(f"[MOC] Trial {t_idx+1:>3}/{n_trials} | "
-              f"a={a*1000:.0f}mm  df={df:.2f}  resp={perceived}")
-
-        # Rest break every 50 trials
-        if (t_idx + 1) % 50 == 0 and (t_idx + 1) < n_trials:
-            renderer.draw_text(
-                f"Trial {t_idx+1} of {n_trials} complete.\n\n"
-                "Take a short rest if needed.\n"
-                "Press Enter to continue.",
-                pos=(0, 0)
-            )
-            renderer.render_screen()
-            kb.waitKeys(keyList=['return'], waitRelease=True)
-
-    exp_v.saveAsWideText(data_v + '.csv')
-
-    # ----------------------------------------------------------
-    # PHASE 2 — HAPTIC_ONLY
-    # ----------------------------------------------------------
-    trial_list = []
-    for d in DEPTH_FACTORS:
-        for rep in range(MOC_N_REPS[0]):
-            trial_list.append({'half_height': HALF_HEIGHTS[0], 'depth_factor': d,'repetition':rep})
-    random.shuffle(trial_list)
-    n_trilas = len(trial_list)
-    
-
-    exp_h = ExperimentHandler(
-        name='haptic-only', version='1.0', extraInfo=info,
-        runtimeInfo=None, dataFileName=data_h
-    )
-    
-
-    
-    for t_idx, trial in enumerate(trial_list):
-        a = trial['half_height']
-        df = trial['depth_factor']
-        rep = trial['repetition']
-        seed = abs(hash((a, df, rep, info['Participant ID'], 'moc'))) % (2**32)
-        t0 = time.time()
-        img_arr = load_empty_stimulus()
+    # for t_idx, trial in enumerate(trial_list):
+        # a = trial['half_height']
+        # df = trial['depth_factor']
+        # texture = trial['texture']
+        # rep = trial['repetition']
+        # seed = abs(hash((a, df, rep, info['Participant ID'], 'moc'))) % (2**32)
+        # t0 = time.time()
         # img_arr = load_stimulus(texture, df, tmp_dir)
-        l_arr = img_arr
-        r_arr = img_arr
-        # l_arr, r_arr = generate_stimulus(a=a, df=df, iod=iod_m, seed=seed)
-        t_render = time.time() - t0
-        stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
-        renderer.draw_text_single_window(
-            f"Next Shape: {SHAPE_DICT[df]}",
-            pos=(0, 0)
-        )
-        renderer.render_screen()
-        kb.waitKeys(keyList=['return'], waitRelease=True)
-        try:
-            rname, rt = run_single_trial(
-                renderer, kb, phaseTracker, trial_time, parameters,
-                stimulus, stimulusVisualAngle
-            )
-        except SystemExit:
-            escaped = True
-            break
+        # l_arr = img_arr
+        # r_arr = img_arr
+        # t_render = time.time() - t0
 
-        perceived = 'stretched' if rname == '3' else 'squashed'
+        # stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
 
-        exp_h.addData('phase', 'haptic-only')
-        exp_h.addData('half_height', a)
-        exp_h.addData('depth_factor', df)
-        exp_h.addData('repetition', rep)
-        exp_h.addData('response_key', rname)
-        exp_h.addData('perceived', perceived)
-        exp_h.addData('rt_s', rt)
-        exp_h.addData('render_time_ms', round(t_render * 1000))
-        exp_h.nextEntry()
+        # try:
+            # rname, rt = run_single_trial(
+                # renderer, kb, phaseTracker, trial_time, parameters,
+                # stimulus, stimulusVisualAngle
+            # )
+        # except SystemExit:
+            # escaped = True
+            # break
 
-        print(f"[MOC] Trial {t_idx+1:>3}/{n_trials} | "
-              f"a={a*1000:.0f}mm  df={df:.2f}  resp={perceived}")
+        # perceived = 'stretched' if rname == '3' else 'squashed'
 
-        # Rest break every 50 trials
-        if (t_idx + 1) % 50 == 0 and (t_idx + 1) < n_trials:
-            renderer.draw_text(
-                f"Trial {t_idx+1} of {n_trials} complete.\n\n"
-                "Take a short rest if needed.\n"
-                "Press Enter to continue.",
-                pos=(0, 0)
-            )
-            renderer.render_screen()
-            kb.waitKeys(keyList=['return'], waitRelease=True)
-    exp_h.saveAsWideText(data_h + '.csv')
+        # exp_v.addData('phase', 'visual-only')
+        # exp_v.addData('half_height', a)
+        # exp_v.addData('depth_factor', df)
+        # exp_v.addData('repetition', rep)
+        # exp_v.addData('response_key', rname)
+        # exp_v.addData('perceived', perceived)
+        # exp_v.addData('rt_s', rt)
+        # exp_v.addData('render_time_ms', round(t_render * 1000))
+        # exp_v.nextEntry()
+
+        # print(f"[MOC] Trial {t_idx+1:>3}/{n_trials} | "
+              # f"a={a*1000:.0f}mm  df={df:.2f}  resp={perceived}")
+
+        # # Rest break every 50 trials
+        # if (t_idx + 1) % 50 == 0 and (t_idx + 1) < n_trials:
+            # renderer.draw_text(
+                # f"Trial {t_idx+1} of {n_trials} complete.\n\n"
+                # "Take a short rest if needed.\n"
+                # "Press Enter to continue.",
+                # pos=(0, 0)
+            # )
+            # renderer.render_screen()
+            # kb.waitKeys(keyList=['return'], waitRelease=True)
+
+    # exp_v.saveAsWideText(data_v + '.csv')
+
+    # # ----------------------------------------------------------
+    # # PHASE 2 — HAPTIC_ONLY
+    # # ----------------------------------------------------------
+    # trial_list = []
+    # for d in DEPTH_FACTORS:
+        # for rep in range(MOC_N_REPS[0]):
+            # trial_list.append({'half_height': HALF_HEIGHTS[0], 'depth_factor': d,'repetition':rep})
+    # random.shuffle(trial_list)
+    # n_trilas = len(trial_list)
+    
+
+    # exp_h = ExperimentHandler(
+        # name='haptic-only', version='1.0', extraInfo=info,
+        # runtimeInfo=None, dataFileName=data_h
+    # )
+    
+
+    
+    # for t_idx, trial in enumerate(trial_list):
+        # a = trial['half_height']
+        # df = trial['depth_factor']
+        # rep = trial['repetition']
+        # seed = abs(hash((a, df, rep, info['Participant ID'], 'moc'))) % (2**32)
+        # t0 = time.time()
+        # img_arr = load_empty_stimulus()
+        # # img_arr = load_stimulus(texture, df, tmp_dir)
+        # l_arr = img_arr
+        # r_arr = img_arr
+        # # l_arr, r_arr = generate_stimulus(a=a, df=df, iod=iod_m, seed=seed)
+        # t_render = time.time() - t0
+        # stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
+        # renderer.draw_text_single_window(
+            # f"Next Shape: {SHAPE_DICT[df]}",
+            # pos=(0, 0),
+            # window=1
+        # )
+        # renderer.render_screen()
+        # kb.waitKeys(keyList=['return'], waitRelease=True)
+        # try:
+            # rname, rt = run_single_trial(
+                # renderer, kb, phaseTracker, trial_time, parameters,
+                # stimulus, stimulusVisualAngle
+            # )
+        # except SystemExit:
+            # escaped = True
+            # break
+
+        # perceived = 'stretched' if rname == '3' else 'squashed'
+
+        # exp_h.addData('phase', 'haptic-only')
+        # exp_h.addData('half_height', a)
+        # exp_h.addData('depth_factor', df)
+        # exp_h.addData('repetition', rep)
+        # exp_h.addData('response_key', rname)
+        # exp_h.addData('perceived', perceived)
+        # exp_h.addData('rt_s', rt)
+        # exp_h.addData('render_time_ms', round(t_render * 1000))
+        # exp_h.nextEntry()
+
+        # print(f"[MOC] Trial {t_idx+1:>3}/{n_trials} | "
+              # f"a={a*1000:.0f}mm  df={df:.2f}  resp={perceived}")
+
+        # # Rest break every 50 trials
+        # if (t_idx + 1) % 50 == 0 and (t_idx + 1) < n_trials:
+            # renderer.draw_text(
+                # f"Trial {t_idx+1} of {n_trials} complete.\n\n"
+                # "Take a short rest if needed.\n"
+                # "Press Enter to continue.",
+                # pos=(0, 0)
+            # )
+            # renderer.render_screen()
+            # kb.waitKeys(keyList=['return'], waitRelease=True)
+    # exp_h.saveAsWideText(data_h + '.csv')
  
             
     # ----------------------------------------------------------
@@ -473,7 +476,8 @@ def main():
         r_arr = img_arr
         # l_arr, r_arr = generate_stimulus(a=a, df=df, iod=iod_m, seed=seed)
         t_render = time.time() - t0
-        arduino.write(vibration_level)
+        print("Vibration Level", vibration_level)
+        arduino.write(bytes(str(vibration_level), 'utf-8'))
 
         stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
 
@@ -485,6 +489,7 @@ def main():
         except SystemExit:
             escaped = True
             break
+        arduino.write(bytes(str(0), 'utf-8'))
 
         perceived = 'stretched' if rname == '3' else 'squashed'
 
