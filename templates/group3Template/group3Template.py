@@ -44,7 +44,7 @@ HALF_HEIGHTS = [0.04]   # meters — Johnston used 2.5–7.5 cm; we use 2 sizes
 TEXTURES = [0, 1, 2]
 DEPTH_FACTORS = [0.5, 0.75, 1, 1.25, 1.5]
 SHAPE_DICT = {0.5:'-2', 0.75:'-1', 1:'+0', 1.25:'+1', 1.5:'+2'}
-VIBRATION_LEVELS = [0, 2, 3]
+VIBRATION_LEVELS = [0, 1, 3]
 # --- Staircase parameters ---
 SC_START_DF    = 1.25   # start well above expected PSE
 SC_STEP        = 0.5   # step size
@@ -289,6 +289,7 @@ def main():
     arduino = serial.Serial(port, 9600, timeout=1)
 
     time.sleep(2)  # wait for Arduino reset
+    arduino.write(bytes(str(0), 'utf-8'))
 
     print("Connected to Arduino")
 
@@ -330,7 +331,11 @@ def main():
         t_render = time.time() - t0
 
         stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
-
+        renderer.draw_text_single_window(
+            f"Next Shape: {SHAPE_DICT[df]}",
+            pos=(0, 0),
+            window=1
+        )
         try:
             rname, rt = run_single_trial(
                 renderer, kb, phaseTracker, trial_time, parameters,
@@ -367,7 +372,14 @@ def main():
             kb.waitKeys(keyList=['return'], waitRelease=True)
 
     exp_v.saveAsWideText(data_v + '.csv')
-
+    renderer.draw_text(
+        f"Visual Trial complete.\n\n"
+        "Take a short rest if needed.\n"
+        "Press Enter to continue.",
+        pos=(0, 0)
+    )
+    renderer.render_screen()
+    kb.waitKeys(keyList=['return'], waitRelease=True)
     # ----------------------------------------------------------
     # PHASE 2 — HAPTIC_ONLY
     # ----------------------------------------------------------
@@ -400,7 +412,7 @@ def main():
         t_render = time.time() - t0
         stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
         renderer.draw_text_single_window(
-            f"Next Shape: {SHAPE_DICT[df]}",
+            f"trial: {t_idx}; Next Shape: {SHAPE_DICT[df]}",
             pos=(0, 0),
             window=1
         )
@@ -441,7 +453,15 @@ def main():
             renderer.render_screen()
             kb.waitKeys(keyList=['return'], waitRelease=True)
     exp_h.saveAsWideText(data_h + '.csv')
- 
+
+    renderer.draw_text(
+        f"Haptic Trial complete.\n\n"
+        "Take a short rest if needed.\n"
+        "Press Enter to continue.",
+        pos=(0, 0)
+    )
+    renderer.render_screen()
+    kb.waitKeys(keyList=['return'], waitRelease=True)
             
     # ----------------------------------------------------------
     # PHASE 3 — Visual + Haptic
@@ -534,6 +554,7 @@ def main():
 
     renderer.close_windows()
     # shutil.rmtree(tmp_dir, ignore_errors=True)
+    arduino.write(bytes(str(0), 'utf-8'))
     arduino.close()
     core.quit()
 
