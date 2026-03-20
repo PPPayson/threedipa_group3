@@ -397,7 +397,6 @@ def main():
     )
     
 
-    
     for t_idx, trial in enumerate(trial_list):
         a = trial['half_height']
         df = trial['depth_factor']
