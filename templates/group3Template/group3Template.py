@@ -495,8 +495,6 @@ def main():
         r_arr = img_arr
         # l_arr, r_arr = generate_stimulus(a=a, df=df, iod=iod_m, seed=seed)
         t_render = time.time() - t0
-        print("Vibration Level", vibration_level)
-        arduino.write(bytes(str(vibration_level), 'utf-8'))
 
         stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
         renderer.draw_text_single_window(
@@ -506,6 +504,8 @@ def main():
         )
         renderer.render_screen()
         kb.waitKeys(keyList=['return'], waitRelease=True)
+        print("Vibration Level", vibration_level)
+        arduino.write(bytes(str(vibration_level), 'utf-8'))
         try:
             rname, rt = run_single_trial(
                 renderer, kb, phaseTracker, trial_time, parameters,
