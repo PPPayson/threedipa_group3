@@ -498,7 +498,7 @@ def main():
 
         stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
         renderer.draw_text_single_window(
-            f"Next Shape: {SHAPE_DICT[df]}",
+            f"trial: {t_idx}; Next Shape: {SHAPE_DICT[df]}",
             pos=(0, 0),
             window=1
         )

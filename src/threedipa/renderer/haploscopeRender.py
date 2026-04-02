@@ -95,7 +95,8 @@ class HaplscopeRender2D(HaplscopeRender):
             text=text,
             units=self.windows[window].units,
             pos=pos,
-            color='white'
+            color='white',
+            height=100
         ).draw()
         
     def draw_text(self, text: str, pos: tuple[float, float] = (0, 0)):
