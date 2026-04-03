@@ -1,9 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\src",
+    "\\src\\threedipa",
+    "\\src\\threedipa\\renderer",
     "\\templates",
     "\\templates\\group3Template",
     "\\tests"
   ],
+  "SelectedNode": "\\src\\threedipa\\renderer\\utils.py",
   "PreviewInSolutionExplorer": false
 }
