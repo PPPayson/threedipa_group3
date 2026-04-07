@@ -55,7 +55,7 @@ SC_MAX_DF      = 2.00
 # --- Method of constants parameters ---
 MOC_N_STEPS  = 5       # number of depth factor levels (Johnston used 5)
 MOC_SPACING  = 0.25    # spacing between levels (in df units)
-MOC_N_REPS   = [10, 10, 5]      # repetitions per condition → 20×5×2 = 200 trials
+MOC_N_REPS   = [4, 4, 4]      # repetitions per condition → 20×5×2 = 200 trials
 MOC_N_Tex    = 3
 
 TEXTURE_DICT = {0:"noise", 1:"lines", 2:"circle"}
@@ -519,6 +519,8 @@ def main():
         perceived = 'stretched' if rname == '3' else 'squashed'
 
         exp_vh.addData('phase', 'visual-haptic')
+        exp_vh.addData('vibration', vibration_level)
+        exp_vh.addData('texture', texture)
         exp_vh.addData('half_height', a)
         exp_vh.addData('depth_factor', df)
         exp_vh.addData('repetition', rep)
