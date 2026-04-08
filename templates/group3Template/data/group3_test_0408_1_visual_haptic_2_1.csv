@@ -1,0 +1,8 @@
+﻿thisRow.t,notes,phase,vibration,texture,half_height,depth_factor,repetition,response_key,perceived,rt_s,render_time_ms,Participant ID,IOD (mm),Session,
+,,visual-haptic,1,0,0.04,1,1,3,stretched,4.366199599928223,258,test_0408,56,1,
+,,visual-haptic,3,0,0.04,1,0,3,stretched,1.1270348000107333,267,test_0408,56,1,
+,,visual-haptic,3,0,0.04,1.25,2,3,stretched,0.806330099934712,263,test_0408,56,1,
+,,visual-haptic,0,1,0.04,0.5,2,3,stretched,0.8346021000761539,278,test_0408,56,1,
+,,visual-haptic,1,2,0.04,0.5,3,6,squashed,0.8604654999217018,232,test_0408,56,1,
+,,visual-haptic,1,2,0.04,1,3,3,stretched,0.15684590011369437,290,test_0408,56,1,
+,,visual-haptic,1,2,0.04,1.25,0,3,stretched,0.008455900009721518,238,test_0408,56,1,

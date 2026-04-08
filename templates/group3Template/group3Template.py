@@ -55,7 +55,7 @@ SC_MAX_DF      = 2.00
 # --- Method of constants parameters ---
 MOC_N_STEPS  = 5       # number of depth factor levels (Johnston used 5)
 MOC_SPACING  = 0.25    # spacing between levels (in df units)
-MOC_N_REPS   = [4, 4, 4]      # repetitions per condition → 20×5×2 = 200 trials
+MOC_N_REPS   = [10, 4, 4]      # repetitions per condition → 20×5×2 = 200 trials
 MOC_N_Tex    = 3
 
 TEXTURE_DICT = {0:"noise", 1:"lines", 2:"circle"}
