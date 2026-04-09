@@ -385,7 +385,7 @@ def main():
     # ----------------------------------------------------------
     trial_list = []
     for d in DEPTH_FACTORS:
-        for rep in range(MOC_N_REPS[0]):
+        for rep in range(MOC_N_REPS[1]):
             trial_list.append({'half_height': HALF_HEIGHTS[0], 'depth_factor': d,'repetition':rep})
     random.shuffle(trial_list)
     n_trilas = len(trial_list)
