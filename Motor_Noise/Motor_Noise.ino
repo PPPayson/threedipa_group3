@@ -29,11 +29,10 @@ void loop() {
 
   // 2. Keep running the locked mode
   if (currentMode == '1') { analogWrite(motorPin, 100); }
-  else if (currentMode == '2') { analogWrite(motorPin, 180); }
+  else if (currentMode == '2') { analogWrite(motorPin, 150); }
   else if (currentMode == '3') { analogWrite(motorPin, 255); }
   else if (currentMode == 'H') { heartbeat(); }
   else if (currentMode == 'S') { shudder(); }
-  else if (currentMode == 'R') { rampUp(); }
   else if (currentMode == 'N') { heavyNoise(); }
   else if (currentMode == 'X') { sparkNoise(); }
 }
