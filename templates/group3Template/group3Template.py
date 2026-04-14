@@ -544,7 +544,77 @@ def main():
             renderer.render_screen()
             kb.waitKeys(keyList=['return'], waitRelease=True)
     exp_vh.saveAsWideText(data_vh + '.csv')
+    
+ # ----------------------------------------------------------
+    # PHASE 4 — VISUAL_AFTER
+    # ----------------------------------------------------------
+    trial_list = []
+    for d in DEPTH_FACTORS:
+        for rep in range(MOC_N_REPS[0]):
+            trial_list.append({'half_height': HALF_HEIGHTS[0], 'depth_factor': d, 'texture': 2, 'repetition':rep})
+    random.shuffle(trial_list)
+    n_trials = len(trial_list)
+    
+    exp_va = ExperimentHandler(
+        name='visual-after', version='1.0', extraInfo=info,
+        runtimeInfo=None, dataFileName=data_v
+    )
+    
+    for t_idx, trial in enumerate(trial_list):
+        a = trial['half_height']
+        df = trial['depth_factor']
+        texture = trial['texture']
+        rep = trial['repetition']
+        seed = abs(hash((a, df, rep, info['Participant ID'], 'moc'))) % (2**32)
+        t0 = time.time()
+        img_arr = load_stimulus(texture, df, tmp_dir)
+        l_arr = img_arr
+        r_arr = img_arr
+        t_render = time.time() - t0
 
+        stimulus = render_to_stimulus(l_arr, r_arr, tmp_dir)
+        renderer.draw_text_single_window(
+            f"Next Shape: {SHAPE_DICT[df]}",
+            pos=(0, 0),
+            window=1
+        )
+        try:
+            rname, rt = run_single_trial(
+                renderer, kb, phaseTracker, trial_time, parameters,
+                stimulus, stimulusVisualAngle
+            )
+        except SystemExit:
+            escaped = True
+            break
+
+        perceived = 'stretched' if rname == '3' else 'squashed'
+
+        exp_va.addData('phase', 'visual-after')
+        exp_va.addData('half_height', a)
+        exp_va.addData('depth_factor', df)
+        exp_va.addData('repetition', rep)
+        exp_va.addData('response_key', rname)
+        exp_va.addData('perceived', perceived)
+        exp_va.addData('rt_s', rt)
+        exp_va.addData('render_time_ms', round(t_render * 1000))
+        exp_va.nextEntry()
+
+        print(f"[MOC] Trial {t_idx+1:>3}/{n_trials} | "
+              f"a={a*1000:.0f}mm  df={df:.2f}  resp={perceived}")
+
+        # Rest break every 50 trials
+        if (t_idx + 1) % 50 == 0 and (t_idx + 1) < n_trials:
+            renderer.draw_text(
+                f"Trial {t_idx+1} of {n_trials} complete.\n\n"
+                "Take a short rest if needed.\n"
+                "Press Enter to continue.",
+                pos=(0, 0)
+            )
+            renderer.render_screen()
+            kb.waitKeys(keyList=['return'], waitRelease=True)
+
+    exp_va.saveAsWideText(data_v + '.csv')
+    
     # ----------------------------------------------------------
     # End
     # ----------------------------------------------------------
