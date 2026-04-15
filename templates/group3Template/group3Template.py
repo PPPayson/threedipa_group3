@@ -258,7 +258,8 @@ def main():
     data_v = os.path.join(exp_dir, "data", f"group3_{info['Participant ID']}_{info['Session']}_visual_only")
     data_h = os.path.join(exp_dir, "data", f"group3_{info['Participant ID']}_{info['Session']}_haptic_only")
     data_vh = os.path.join(exp_dir, "data", f"group3_{info['Participant ID']}_{info['Session']}_visual_haptic")
-    
+    data_va = os.path.join(exp_dir, "data", f"group3_{info['Participant ID']}_{info['Session']}_visual_after")
+
     parameters = utils.parse_parameters_file(os.path.join(exp_dir, 'parameters.txt'))
     debug_mode = parameters['parameters']['Debug']
     fixationDistance = parameters['parameters']['FixationDistance']
@@ -544,7 +545,15 @@ def main():
             renderer.render_screen()
             kb.waitKeys(keyList=['return'], waitRelease=True)
     exp_vh.saveAsWideText(data_vh + '.csv')
-    
+    renderer.draw_text(
+        f"Visual Haptic Trial complete.\n\n"
+        "Take a short rest if needed.\n"
+        "Press Enter to continue.",
+        pos=(0, 0)
+    )
+    renderer.render_screen()
+    kb.waitKeys(keyList=['return'], waitRelease=True)
+
  # ----------------------------------------------------------
     # PHASE 4 — VISUAL_AFTER
     # ----------------------------------------------------------
@@ -613,7 +622,7 @@ def main():
             renderer.render_screen()
             kb.waitKeys(keyList=['return'], waitRelease=True)
 
-    exp_va.saveAsWideText(data_v + '.csv')
+    exp_va.saveAsWideText(data_va + '.csv')
     
     # ----------------------------------------------------------
     # End
