@@ -6,6 +6,7 @@
     "\\src\\threedipa\\renderer",
     "\\templates",
     "\\templates\\group3Template",
+    "\\templates\\group3Template\\data",
     "\\tests"
   ],
   "PreviewInSolutionExplorer": false
